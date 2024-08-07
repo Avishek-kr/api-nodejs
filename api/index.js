@@ -1,7 +1,7 @@
 import express from 'express';
 import mongoose from 'mongoose';
 import { configDotenv } from 'dotenv';
-import userRoutes from './routes/user.route.js'
+import tipRoutes from './routes/tip.route.js'
 import authRoutes from './routes/auth.route.js'
 
 configDotenv();
@@ -20,8 +20,8 @@ app.listen(3000, () => {
     console.log(`Server is running on port 3000`);
 });
 
-// app.use('/', userRoutes);
 app.use('/', authRoutes);
+app.use('/', tipRoutes);
 
 app.use((err, req, res, next) => {
     if (err.name === 'ValidationError') {
