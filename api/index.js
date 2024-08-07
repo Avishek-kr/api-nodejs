@@ -1,17 +1,39 @@
-import { configDotenv } from 'dotenv';
 import express from 'express';
 import mongoose from 'mongoose';
+import { configDotenv } from 'dotenv';
+import userRoutes from './routes/user.route.js'
+import authRoutes from './routes/auth.route.js'
+
 configDotenv();
 
-mongoose.connect(process.env.MONGO)
-.then(() => {
-    console.log('Connected to MongoDB');
-}).catch((err) => {
-    console.log(err);
-})
+mongoose.connect(process.env.MONGO).then(() => {
+        console.log('MongoDB is connected');
+    }).catch((err) => {
+        console.log(err)
+    });
 
 const app = express();
 
+app.use(express.json());
+
 app.listen(3000, () => {
-    console.log(`Server is runnign on port 3000`);
+    console.log(`Server is running on port 3000`);
 });
+
+// app.use('/', userRoutes);
+app.use('/', authRoutes);
+
+app.use((err, req, res, next) => {
+    if (err.name === 'ValidationError') {
+        const errorMessages = Object.values(err.errors).map(error => error.message);
+        res.status(400).json({ errors: errorMessages });
+      } else {
+        const statusCode = err.statusCode || 500;
+        const message = err.message || 'Internal Server Error';
+        return res.status(statusCode).json({
+           success: false,
+           message,
+           statusCode
+        });
+      }
+})
